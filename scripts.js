@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
     // It will not fetch and display any data in the index page
 
     res.render("index");
-})
+});
 
 //Post request to receive data from OpenWeatherApp
 app.post('/', (req, res) => {
@@ -40,7 +40,7 @@ app.post('/', (req, res) => {
     //Use the city name to fetch data
     //Use the API_KEY in the '.env' file
 
-    let url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${api}`
+    let url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${api}`;
     
     //Request data using the URL
     request(url, (err, response, body) => {
@@ -49,6 +49,7 @@ app.post('/', (req, res) => {
         }else {
             let weather = JSON.parse(body);
             console.log(weather);
+
             if (weather.main === undefined) {
                 res.render('index', {weather: null, error:'Error, please try again'});
 
@@ -61,28 +62,46 @@ app.post('/', (req, res) => {
                     weatherPressure = `{weather.main.pressure}`,
                     // fetching the weather icon and it's size
                     weatherIcon = `http://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png}`,
+                    weatherDescription = `${weather.weather[0].description}`,
                     humidity = `weather.main.humidity`,
                     clouds = `{weather.clouds.all}`,
                     visibility = `{weather.visibility}`,
                     main = `{weather.weather[0].main}`,
-                    weatherFarenheit;
-                weatherFarenheit = (weatherTemp * 9) / 5 + 32;
+                    weatherFahrenheit;
+                    weatherFahrenheit = (weatherTemp * 9) / 5 + 32;
 
                 // round off the value of the degrees Farenheit into two decimal places
 
-                let roundTwo = (num) => {
-                    return +(Math.round(num + 'e+2') + 'e -2');
+                let roundToTwo = (num) => {
+                    return +(Math.round(num + "e+2") + "e-2");
                 }
+                weatherFahrenheit = roundToTwo(weatherFahrenheit);
+
+                res.render("index", {
+                    weather: weather,
+                    place: place,
+                    temp: weatherTemp,
+                    pressure: weatherPressure,
+                    icon: weatherIcon,
+                    description: weatherDescription,
+                    timezone: weatherTimeZone,
+                    humidity: humidity,
+                    fahrenheit: weatherFahrenheit,
+                    clouds: clouds,
+                    visibility: visibility,
+                    main: main,
+                    error: null,
+                  });
             }
         }
 
-    }) 
+    }) ;
 
     
-})
+});
 
 app.listen(process.env.PORT, () => {
-    console.log('Server is running on port 3000');
+    console.log('Weather app listening on port 3000');
     
 })
 
